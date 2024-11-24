@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>2.5d</title>
+  <script src="frogfake3d.js"></script>
+  <script>
+    let ring = {"lines":[{"source":"1","target":"2", "label":"1-2"},{"source":"2","target":"3", "label": "2-3"},{"source":"3","target":"4", "label":"3-4"},{"source":"4","target":"1", "label":"4-5"}],"nodes":[{"id":"1","icon":"img/1.png","name":"node1"},{"id":"2","icon":"img/1.png","name":"node2"},{"id":"3","icon":"img/1.png","name":"node3"},{"id":"4","icon":"img/1.png","name":"node4"}]};
+    let data = {nodes: [{id: "1",name: "a","icon":"img/1.png"},{id: "4",name: "d","icon":"img/1.png"},{id: "2",name: "b","icon":"img/1.png"},{id: "3",name: "c","icon":"img/1.png"},{id: "5",name: "e","icon":"img/1.png"},{id: "6",name: "f","icon":"img/1.png"},{id: "7",name: "g","icon":"img/1.png"}],lines: [{ "source": "1", "target": "4" }, { "source": "2", "target": "5" }, { "source": "3", "target": "5" }]};
+    
+    var options = null;
+    var frog3d = null;
+    window.addEventListener('load', (event) => {
+      frog3d = frogFake3d({
+        autoScale: true, // 自适应缩放
+        autoCenter: true, // 自动居中
+        backgroundColor: 'rgb(255,255,255)',
+        dom: document.getElementById('canvasDiv'),
+        transformMatrix: [
+          [1, 0.5], // 列向量1
+          [-0.875, 0.45] // 列向量2
+        ],
+        padding:{ // 坐标整体偏移
+          both: 1000
+        },
+        grid: {
+          gap: 40, // 网格线间隔
+          lineColor: '#a8b8e0', // 网格线颜色
+          width: 1, // 线宽
+          type: 'dotted' // solid - 实线; dashed - 虚线; dotted - 点
+        },
+        line: {
+          color: 'grey',
+          minGap: 50,
+          highlight: true,
+          label: function(line){
+            let text = line.label;
+            if(text && text.length > 5){
+              text = text.substring(0, 5) + "...";
+            }
+            return text;
+          },
+          tooltip: function(line){
+            return '<div style="padding: 5px 10px;background-color: red;color: white; border-radius: 5px;">'+line.label+'</div>';
+          },
+          // color: function(line){
+          //   let r = randomInt(0, 255);
+          //   let g = randomInt(0, 255);
+          //   let b = randomInt(0, 255);
+          //   return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+          // },
+          width: 1,
+          type: 'solid' // solid - 实线; dashed - 虚线; dotted - 点
+        },
+        point: {
+          color: 'grey', // 点颜色
+          // minGap: 300,
+          label: {
+            bottom: -18,
+            build: function(node){
+              let text = node.name;
+              if(text && text.length > 5){
+                text = text.substring(0, 5) + "...";
+              }
+              return "<div style='position:absolute;top:50%;left:50%;transform: translate(-50%, -50%);'>" + text + "</div>";
+            }
+          },
+          formatter: function(node){
+            return '<img style="position:absolute;left:-40px;top:-40px;max-width:80px;max-height:80px;" src="'+node.icon+'">';
+          },
+          tooltip: function(node){
+            return '<div style="padding: 5px 10px;background-color: black;color: white; border-radius: 5px;">'+node.name+'</div>';
+          }
+        }
+      });
+      frog3d.load(data);
+    });
+
+    function randomTopo(){
+      frog3d.load(randomData());
+    }
+
+    function randomData(){
+      let count = randomInt(1, 30);
+      let nodes = [];
+      let iconArr = ['img/1.png', 'img/2.png', 'img/3.png', 'img/4.png', 'img/5.png', 'img/6.png'];
+      for(let i = 0; i < count; i++){
+        let icon = iconArr[randomInt(0, iconArr.length - 1)];
+        nodes.push(
+          {
+            id: i,
+            icon: icon,
+            name: 'node' + i
+          }
+        );
+      }
+
+      let loopCount = randomInt(1, 5);
+      let lines = [];
+      for(let i = 0; i < loopCount; i++){
+        let jLoop = randomInt(1, count);
+        for(let j = 0; j < jLoop; j++){
+          let s = randomInt(0, count - 1);
+          let t = randomInt(0, count - 1);
+          lines.push({
+            source: s,
+            target: t,
+            label: `${s} --> ${t}`
+          });
+        }
+      }
+      return {
+        nodes: nodes,
+        lines: lines
+      };
+    }
+
+    function randomInt(min, max){
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+</script>
+</head>
+<body>
+  <div class="z-index:100;height:30px;">
+    <button onclick="randomTopo()">Test</button>
+  </div>
+  <div style="width: 1000px;height:500px;border: 1px solid gray;margin-left: 100px;" id="canvasDiv" ></div>
+</body>
+</html>
